@@ -1,0 +1,6 @@
+{
+  "compilationDatabase": {
+    "directory": "${workspaceFolder}",
+    "fallbackFlags": ["-std=c++17"]
+  }
+}
