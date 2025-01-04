@@ -1,33 +1,33 @@
 #include <bits/stdc++.h>
+#include <cmath>
 #define ITER(v) v.begin(), v.end()
 using namespace std;
 
-int main() {
-    int l;
-    cin >> l;
-    vector<int> numbers(l * 2);
-
-    for (int i = 0; i < l * 2; i++) {
-        cin >> numbers[i];
+void setIO(string name = ""){
+    if (name.size() > 0){
+        freopen((name+".in").c_str(), "r", stdin);
+        freopen((name+".out").c_str(), "w", stdout);
     }
-
-    sort(ITER(numbers));
-    int best = -1;
-    for (int a = 0; a < 2*l; a++) {
-        for (int b = a+1; b < 2*l; b++) {
-            // a and b are the two single kayaks
-            auto tmpnums = numbers;
-            tmpnums.erase(tmpnums.begin()+a);
-            tmpnums.erase(tmpnums.begin()+b-1);  // Adjust index after first erase
-            int t = 0;
-            for (int d = 0; d < l-1; d++) {
-                t += abs(tmpnums[d*2]-tmpnums[d*2+1]);
-            }
-            if (best == -1 || t < best) {
-                best = t;
+}
+int main() {
+    long long q;
+    cin >> q;
+    map<long long, long long> store;
+    for (long long i = 0; i < q; i++) {
+        long long op, a;
+        cin >> op >> a;
+        if (op == 0) {
+            long long v;
+            cin >> v;
+            store[a] = v;
+        } else if (op == 1) {
+            if (store.count(a)) {
+                cout << store[a] << endl;
+            } else {
+                cout << 0 << endl;
             }
         }
     }
-    cout << best << endl;
+    cout << endl;
     return 0;
 }
