@@ -1,4 +1,6 @@
 #include <bits/stdc++.h>
+#include <functional>
+#include <ostream>
 #define vi vector<int>
 #define all(a) a.begin(), a.end()
 using namespace std;
@@ -47,7 +49,41 @@ vector<string> split(string s, char sep) {
     return result;
 }
 int main() {
-    setIO("", false);
-
+    setIO("lineup", false);
+    vector<string> things = {"Beatrice", "Belinda", "Bella", "Bessie", "Betsy", "Blue", "Buttercup", "Sue"};
+    vi things2 = {0,1,2,3,4,5,6,7};
+    vector<pair<int, int>> options = {};
+    int n;
+    cin >> n;
+    cin.ignore();
+    for (int i = 0; i < n; i++) {
+        string s;
+        getline(cin, s);
+        auto ss = split(s, ' ');
+        printv(ss);
+        options.push_back(make_pair(
+            index(things, ss.front()).value(),
+            index(things, ss.back()).value()
+        ));
+    }
+    do {
+        bool good = true;
+        for (auto p: options) {
+            if (
+                abs(
+                    index(things2, p.first).value() -
+                    index(things2, p.second).value()
+                ) != 1) {
+                good = false;
+            }
+            if (!good) break;
+        }
+        if (good) {
+            for (int i: things2) {
+                cout << things[i] << endl;
+            }
+            break;
+        }
+    } while (next_permutation(all(things2)));
     return 0;
 }
