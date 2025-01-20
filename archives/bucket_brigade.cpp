@@ -8,60 +8,70 @@ void setIO(string s) {
 	freopen((s + ".in").c_str(), "r", stdin);
 	freopen((s + ".out").c_str(), "w", stdout);
 }
-vector<int> neighs(int p) {
-    vector<int> offsets = {-1, 1, 10, -10};
-    vector<int> result = {};
-    for (int offset : offsets) {
-        int neigh = offset + p;
-        if (neigh < 100 && neigh > 0) {
-            result.push_back(neigh);
+
+vector<int> getNeighbors(int position) {
+    vector<int> gridMoves = {-1, 1, 10, -10};
+    vector<int> validNeighbors = {};
+    for (int move : gridMoves) {
+        int neighborPos = move + position;
+        if (neighborPos < 100 && neighborPos > 0) {
+            validNeighbors.push_back(neighborPos);
         }
     }
-    return result;
+    return validNeighbors;
 }
 
-int manhattan_distance(int a, int b) {
-    return abs( (a % 10) - (b % 10) ) + abs( int(a / 10) - int(b / 10) );
-
+int calculateManhattanDistance(int pos1, int pos2) {
+    return abs((pos1 % 10) - (pos2 % 10)) + abs(int(pos1 / 10) - int(pos2 / 10));
 }
+
 int main() {
-    // cout << "running" << endl;
+    // USACO 2019 US Open Contest, Bronze
+    // Problem 1. Bucket Brigade
+    // https://usaco.org/index.php?page=viewproblem2&cpid=939
     setIO("buckets");
-    char p;
-    int pos = 0;
+    char currentChar;
+    int currentPosition = 0;
     int offsets[4] {-1, 1, 10, -1};
-    int b;
-    int r;
-    int l;
+    int barnPosition;
+    int rockPosition;
+    int lakePosition;
+
     for (int i = 0; i < 100; i++) {
-        cin >> p;
-        if (p == 'L') {
-            l = pos;
+        cin >> currentChar;
+        if (currentChar == 'L') {
+            lakePosition = currentPosition;
         }
-        else if (p == 'R') {
-            r = pos;
+        else if (currentChar == 'R') {
+            rockPosition = currentPosition;
         }
-        else if (p == 'B') {
-            b = pos;
+        else if (currentChar == 'B') {
+            barnPosition = currentPosition;
         }
-        pos++;
+        currentPosition++;
     }
-    int dist = manhattan_distance(b, l);
-    bool flag = false;
-    if (b/10 == l/10 && l/10 == r/10) {
-        if ( ((r > l) && (r < b)) || ((r < l) && (r > b)) ) {
-            flag = true;
-        }
-    }
-    if (b%10 == l%10 && l%10 == r%10) {
-        if ( ((r > l) && (r < b)) || ((r < l) && (r > b)) ) {
-            flag = true;
+
+    int distance = calculateManhattanDistance(barnPosition, lakePosition);
+    bool needsDetour = false;
+
+    if (barnPosition/10 == lakePosition/10 && lakePosition/10 == rockPosition/10) {
+        if (((rockPosition > lakePosition) && (rockPosition < barnPosition)) ||
+            ((rockPosition < lakePosition) && (rockPosition > barnPosition))) {
+            needsDetour = true;
         }
     }
 
-    if (flag) {
-        dist += 2; // to go around R; when they are aligned is the only weird case
+    if (barnPosition%10 == lakePosition%10 && lakePosition%10 == rockPosition%10) {
+        if (((rockPosition > lakePosition) && (rockPosition < barnPosition)) ||
+            ((rockPosition < lakePosition) && (rockPosition > barnPosition))) {
+            needsDetour = true;
+        }
     }
-    cout << dist - 1;
+
+    if (needsDetour) {
+        distance += 2; // Add extra steps to go around rock when aligned
+    }
+
+    cout << distance - 1;
     return 0;
 }

@@ -1,11 +1,23 @@
+// echo "clear && clang++ main.cpp -std=c++17 -Wall -Wextra -O2 -lm && time ./a.out < input.txt" > ~/.runner_settings
+// cp template.cpp main.cpp
 #include <bits/stdc++.h>
+
+#define vi vector<int>
+#define all(a) a.begin(), a.end()
+
 using namespace std;
 
-void setIO(string s) {
-    freopen((s + ".in").c_str(), "r", stdin);
-    freopen((s + ".out").c_str(), "w", stdout);
+void setIO(string name = "", bool maxio = false) {
+    if (name.size() > 0){
+        freopen((name+".in").c_str(), "r", stdin);
+        freopen((name+".out").c_str(), "w", stdout);
+    }
+    if (maxio) {
+        ios::sync_with_stdio(false);
+        cin.tie(nullptr);
+    }
 }
-
+int nxt() { int a; cin >> a; return a; }
 int main() {
     // https://usaco.org/index.php?page=viewproblem2&cpid=1037
     // USACO 2020 US Open Contest, Bronze
@@ -13,72 +25,88 @@ int main() {
 
     setIO("tracing");
 
-    int ncows;
-    int ninteractions;
-    cin >> ncows >> ninteractions;
+    int numCows, numInteractions;
+    cin >> numCows >> numInteractions;
     cin.ignore(1);
-    vector<vector<int>> interactions = {}; // t, x++, y++
-    vector<bool> cowgood(ncows);
-    for (int i = 0; i < ncows; i++) {
-        char c;
-        cin >> c;
-        cowgood[i] = c=='1';
+
+    vector<vector<int>> interactions; // time, cow1, cow2
+    vector<bool> finalInfectionState(numCows);
+
+    // Read final infection states
+    for (int i = 0; i < numCows; i++) {
+        char state;
+        cin >> state;
+        finalInfectionState[i] = (state == '1');
     }
     cin.ignore(1);
-    for (int i = 0; i < ninteractions; i++) {
+
+    // Read interaction records
+    for (int i = 0; i < numInteractions; i++) {
         vector<int> interaction(3);
         cin >> interaction[0] >> interaction[1] >> interaction[2];
+        // Convert to 0-based indexing
         interaction[0]--;
         interaction[1]--;
         interaction[2]--;
         interactions.push_back(interaction);
     }
-    std::sort(interactions.begin(), interactions.end(), [=](const auto inter1, const auto inter2) {
-        return inter1[0] < inter2[0];
-    });
-    int numb_cands = 0;
-    int min_k = ninteractions;
-    int max_k = -1;
-    for (int candidate = 0; candidate < ncows; candidate++) {
-        bool found = false;
-        for (int k = 0; k <= ninteractions; k++) {
-            // time for the hard part: simulation
-            vector<bool> infected(ncows, false);
-            vector<int> timer(ncows, k);
-            infected[candidate] = true;
-            for (auto interaction: interactions) {
-                // simulate step (aka interaction)
-                int ai = interaction[1];
-                int bi = interaction[2];
-                bool changedthisround = false;
-                if (infected[ai])
-                    timer[ai]--;
-                if (infected[bi])
-                    timer[bi]--;
-                if (infected[ai] && timer[ai] >= 0) {
-                    infected[bi] = true;
-                    changedthisround = true;
+
+    // Sort interactions by time
+    sort(interactions.begin(), interactions.end(),
+         [](const auto& a, const auto& b) { return a[0] < b[0]; });
+
+    int numValidPatientZeros = 0;
+    int minInteractions = numInteractions;
+    int maxInteractions = -1;
+
+    // Try each cow as patient zero
+    for (int patientZero = 0; patientZero < numCows; patientZero++) {
+        bool validPatientZero = false;
+
+        // Try different numbers of interactions K
+        for (int k = 0; k <= numInteractions; k++) {
+            vector<bool> infectedStates(numCows, false);
+            vector<int> remainingInteractions(numCows, k);
+            infectedStates[patientZero] = true;
+
+            // Simulate spread of infection
+            for (const auto& interaction : interactions) {
+                int cow1 = interaction[1];
+                int cow2 = interaction[2];
+                bool spreadThisRound = false;
+
+                if (infectedStates[cow1]) {
+                    remainingInteractions[cow1]--;
                 }
-                if (!changedthisround) {
-                    if (infected[bi] && timer[bi] >= 0) {
-                        infected[ai] = true;
-                    }
+                if (infectedStates[cow2]) {
+                    remainingInteractions[cow2]--;
+                }
+
+                if (infectedStates[cow1] && remainingInteractions[cow1] >= 0) {
+                    infectedStates[cow2] = true;
+                    spreadThisRound = true;
+                }
+                if (!spreadThisRound && infectedStates[cow2] && remainingInteractions[cow2] >= 0) {
+                    infectedStates[cow1] = true;
                 }
             }
-            if (infected == cowgood) {
-                found = true;
-                if (k < min_k) {
-                    min_k = k;
-                }
-                if (k > max_k) {
-                    max_k = k;
-                }
+
+            if (infectedStates == finalInfectionState) {
+                validPatientZero = true;
+                minInteractions = min(minInteractions, k);
+                maxInteractions = max(maxInteractions, k);
             }
         }
-        if (found) {
-            numb_cands++;
+
+        if (validPatientZero) {
+            numValidPatientZeros++;
         }
     }
-    cout << numb_cands << " " << (min_k == -1 ? 0 : min_k) << " " << ((max_k == ninteractions) ? "Infinity" : to_string(max_k)) << endl;
+
+    cout << numValidPatientZeros << " "
+         << (minInteractions == -1 ? 0 : minInteractions) << " "
+         << (maxInteractions == numInteractions ? "Infinity" : to_string(maxInteractions))
+         << endl;
+
     return 0;
 }

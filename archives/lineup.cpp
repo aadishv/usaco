@@ -1,8 +1,10 @@
+// echo "clear && clang++ main.cpp -std=c++17 -Wall -Wextra -O2 -lm && time ./a.out < input.txt" > ~/.runner_settings
+// cp template.cpp main.cpp
 #include <bits/stdc++.h>
-#include <functional>
-#include <ostream>
+
 #define vi vector<int>
 #define all(a) a.begin(), a.end()
+
 using namespace std;
 
 void setIO(string name = "", bool maxio = false) {
@@ -15,75 +17,64 @@ void setIO(string name = "", bool maxio = false) {
         cin.tie(nullptr);
     }
 }
-int nxt() {
-    int a; cin >> a; return a;
-}
-template<typename T>
-void printv(vector<T> v) {
-    for (unsigned long long i = 0; i < v.size(); i++) {
-        cerr << v[i] << " ";
-    }
-    cerr << endl;
-}
-template<typename T>
-optional<int> index(vector<T> v, T a) {
-    auto p = v.begin();
-    while (*p != a && p != v.end()) p++;
-    if (p == v.end()) return nullopt;
-    return p-v.begin();
-}
-vector<string> split(string s, char sep) {
-    vector<string> result = {};
-    string cur = "";
-    auto p = s.begin();
-    while (p != s.end()) {
-        if (*p == sep) {
-            result.push_back(cur);
-            cur = "";
-        }
-        else
-            cur.push_back(*p);
-        p++;
-    }
-    result.push_back(cur);
-    return result;
-}
+int nxt() { int a; cin >> a; return a; }
 int main() {
+    // USACO 2019 December Contest, Bronze
+    // Problem 3. Livestock Lineup
+    // https://usaco.org/index.php?page=viewproblem2&cpid=965
     setIO("lineup", false);
-    vector<string> things = {"Beatrice", "Belinda", "Bella", "Bessie", "Betsy", "Blue", "Buttercup", "Sue"};
-    vi things2 = {0,1,2,3,4,5,6,7};
-    vector<pair<int, int>> options = {};
-    int n;
-    cin >> n;
+    vector<string> cowNames = {"Beatrice", "Belinda", "Bella", "Bessie", "Betsy", "Blue", "Buttercup", "Sue"};
+    vi cowIndices = {0,1,2,3,4,5,6,7};
+    vector<pair<int, int>> constraints = {};
+    int numConstraints;
+    cin >> numConstraints;
     cin.ignore();
-    for (int i = 0; i < n; i++) {
-        string s;
-        getline(cin, s);
-        auto ss = split(s, ' ');
-        printv(ss);
-        options.push_back(make_pair(
-            index(things, ss.front()).value(),
-            index(things, ss.back()).value()
+
+    // Helper functions to replace missing functions
+    auto split = [](const string& s, char delim) {
+        vector<string> tokens;
+        stringstream ss(s);
+        string token;
+        while (getline(ss, token, delim)) {
+            tokens.push_back(token);
+        }
+        return tokens;
+    };
+
+    auto findIndex = [](const vector<string>& vec, const string& val) {
+        auto it = find(vec.begin(), vec.end(), val);
+        if (it != vec.end()) {
+            return static_cast<long>(distance(vec.begin(), it));
+        }
+        return static_cast<long>(-1);
+    };
+
+    for (int i = 0; i < numConstraints; i++) {
+        string line;
+        getline(cin, line);
+        auto tokens = split(line, ' ');
+        constraints.push_back(make_pair(
+            findIndex(cowNames, tokens.front()),
+            findIndex(cowNames, tokens.back())
         ));
     }
+
     do {
-        bool good = true;
-        for (auto p: options) {
-            if (
-                abs(
-                    index(things2, p.first).value() -
-                    index(things2, p.second).value()
-                ) != 1) {
-                good = false;
+        bool validPermutation = true;
+        for (const auto& constraint: constraints) {
+            int pos1 = find(cowIndices.begin(), cowIndices.end(), constraint.first) - cowIndices.begin();
+            int pos2 = find(cowIndices.begin(), cowIndices.end(), constraint.second) - cowIndices.begin();
+            if (abs(pos1 - pos2) != 1) {
+                validPermutation = false;
+                break;
             }
-            if (!good) break;
         }
-        if (good) {
-            for (int i: things2) {
-                cout << things[i] << endl;
+        if (validPermutation) {
+            for (int i: cowIndices) {
+                cout << cowNames[i] << endl;
             }
             break;
         }
-    } while (next_permutation(all(things2)));
+    } while (next_permutation(all(cowIndices)));
     return 0;
 }

@@ -1,6 +1,10 @@
+// echo "clear && clang++ main.cpp -std=c++17 -Wall -Wextra -O2 -lm && time ./a.out < input.txt" > ~/.runner_settings
+// cp template.cpp main.cpp
 #include <bits/stdc++.h>
+
 #define vi vector<int>
 #define all(a) a.begin(), a.end()
+
 using namespace std;
 
 void setIO(string name = "", bool maxio = false) {
@@ -13,131 +17,124 @@ void setIO(string name = "", bool maxio = false) {
         cin.tie(nullptr);
     }
 }
-int nxt() {
-    int a; cin >> a; return a;
-}
-template<typename T>
-void printv(vector<T> v) {
-    for (unsigned long long i = 0; i < v.size(); i++) {
-        cerr << v[i] << " ";
+int nxt() { int a; cin >> a; return a; }
+// Helper function to find index of string in vector
+optional<size_t> find_index(const vector<string>& vec, const string& val) {
+    auto it = find(vec.begin(), vec.end(), val);
+    if (it != vec.end()) {
+        return distance(vec.begin(), it);
     }
-    cerr << endl;
+    return nullopt;
 }
-template<typename T>
-optional<int> index(vector<T> v, T a) {
-    auto p = v.begin();
-    while (*p != a && p != v.end()) p++;
-    if (p == v.end()) return nullopt;
-    return p-v.begin();
-}
-vector<string> split(string s, char sep) {
-    vector<string> result = {};
-    string cur = "";
-    auto p = s.begin();
-    while (p != s.end()) {
-        if (*p == sep) {
-            result.push_back(cur);
-            cur = "";
-        }
-        else
-            cur.push_back(*p);
-        p++;
-    }
-    result.push_back(cur);
-    return result;
-}
-int check(vector<pair<string, string>> relationships, string young, string old) {
-    auto print_ans = [=](string r) {
-        cout << old << " is the " << r << " of " << young << endl;
+
+int check_relationship(const vector<pair<string, string>>& family_tree, string descendant, string ancestor) {
+    auto print_relationship = [=](string relation) {
+        cout << ancestor << " is the " << relation << " of " << descendant << endl;
     };
-    // check if are siblings
-    string mothera, motherb;
-    for (auto relation: relationships) {
-        if (relation.second == young) mothera = relation.first;
-        if (relation.second == old) motherb = relation.first;
+
+    // Check if they are siblings
+    string mother_of_descendant, mother_of_ancestor;
+    for (const auto& [mother, child] : family_tree) {
+        if (child == descendant) mother_of_descendant = mother;
+        if (child == ancestor) mother_of_ancestor = mother;
     }
-    if (mothera == motherb) {
-        cout << "SIBLINGS" << endl; return 0;
+    if (mother_of_descendant == mother_of_ancestor) {
+        cout << "SIBLINGS" << endl;
+        return 0;
     }
-    // go up through young's direct parents. also check direct parent's other children to see if old is in it
-    string direct_relative = young;
-    vector<string> direct_names = {"mother", "grand-mother"};
-    for (int i = 1; i < 1000; i++) {
-        auto old_direct = direct_relative;
-        for (auto relation: relationships) {
-            if (relation.second == direct_relative) {
-                direct_relative = relation.first;
+
+    // Traverse up family tree through direct lineage
+    string current = descendant;
+    vector<string> relation_names = {"mother", "grand-mother"};
+
+    for (int generations = 1; generations < 1000; generations++) {
+        string previous = current;
+
+        // Find parent of current person
+        for (const auto& [mother, child] : family_tree) {
+            if (child == current) {
+                current = mother;
                 break;
             }
         }
-        // old is direct ancestor
-        if (direct_relative == old) {
-            // handle printing if old is direct ancestor of young
-            if (i < 2) {
-                print_ans(direct_names[i-1]);
+
+        // Check if ancestor is direct ancestor
+        if (current == ancestor) {
+            if (generations < 2) {
+                print_relationship(relation_names[generations-1]);
             } else {
-                string s = direct_names[1];
-                for (int j = 0; j < i - 2; j++) { s = "great-" + s; };
-                print_ans(s);
+                string relation = relation_names[1];
+                for (int i = 0; i < generations - 2; i++) {
+                    relation = "great-" + relation;
+                }
+                print_relationship(relation);
             }
-            // cerr << "returning";
             return 0;
         }
-        // check parent
-        for (auto relation: relationships) {
-            if (relation == make_pair(direct_relative, old)) {
-                // aunt = 2, great-aunt = 3
-                string s = "aunt";
-                if (i > 2) {
-                    for (int j = 0; j < i - 2; j++) {
-                        s = "great-" + s;
+
+        // Check for aunt relationship
+        for (const auto& relation : family_tree) {
+            if (relation == make_pair(current, ancestor)) {
+                string relation_type = "aunt";
+                if (generations > 2) {
+                    for (int i = 0; i < generations - 2; i++) {
+                        relation_type = "great-" + relation_type;
                     }
                 }
-                print_ans(s);
-                // cerr << "returning2";
+                print_relationship(relation_type);
                 return 0;
             }
         }
     }
     return 1;
 }
+
 int main() {
+    // USACO 2018 US Open Contest, Bronze
+    // Problem 3. Family Tree
+    // https://usaco.org/index.php?page=viewproblem2&cpid=833
     setIO("family", false);
 
-    int nnn; string young, old;
-    cin >> nnn >> young >> old;
-    vector<pair<string, string>> relationships = {}; // first is mother of second
-    for (int i = 0; i < nnn; i++) {
-        string a, b; cin >> a >> b;
-        relationships.push_back(make_pair(a, b));
+    int num_relationships;
+    string younger, older;
+    cin >> num_relationships >> younger >> older;
+
+    vector<pair<string, string>> family_tree;
+    for (int i = 0; i < num_relationships; i++) {
+        string mother, child;
+        cin >> mother >> child;
+        family_tree.push_back(make_pair(mother, child));
     }
-    int result = check(relationships, young, old);
+
+    int result = check_relationship(family_tree, younger, older);
     if (result) {
-        result = check(relationships, old, young);
+        result = check_relationship(family_tree, older, younger);
         if (!result) return 0;
     } else return 0;
-    // check if they share a common ancestor at all
-    // bfs <<< just check the lists of parents dumbo lol
-    // cout << "RUN";
-    vector<string> na = {young};
+
+    // Check if they share any common ancestors
+    vector<string> ancestors = {younger};
     for (int i = 0; ++i < 1000; ) {
-        auto len = na.size();
-        for (auto r: relationships) {
-            if (r.second == na.back()) na.push_back(r.first);
+        auto prev_size = ancestors.size();
+        for (const auto& relation : family_tree) {
+            if (relation.second == ancestors.back())
+                ancestors.push_back(relation.first);
         }
-        if (na.size() == len) break;
+        if (ancestors.size() == prev_size) break;
     }
+
     for (int i = 0; ++i < 1000; ) {
-        for (auto r: relationships) {
-            if (r.second == old) {
-                old = r.first;
+        for (const auto& relation : family_tree) {
+            if (relation.second == older) {
+                older = relation.first;
             }
         }
-        if (index(na, old).has_value()) {
+        if (find_index(ancestors, older).has_value()) {
             cout << "COUSINS" << endl;
             return 0;
         }
     }
+
     cout << "NOT RELATED" << endl;
     return 0;
 }

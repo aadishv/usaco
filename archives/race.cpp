@@ -1,8 +1,10 @@
+// echo "clear && clang++ main.cpp -std=c++17 -Wall -Wextra -O2 -lm && time ./a.out < input.txt" > ~/.runner_settings
+// cp template.cpp main.cpp
 #include <bits/stdc++.h>
-#include <functional>
-#include <ostream>
+
 #define vi vector<int>
 #define all(a) a.begin(), a.end()
+
 using namespace std;
 
 void setIO(string name = "", bool maxio = false) {
@@ -15,58 +17,49 @@ void setIO(string name = "", bool maxio = false) {
         cin.tie(nullptr);
     }
 }
-int nxt() {
-    int a; cin >> a; return a;
-}
-template<typename T>
-void printv(vector<T> v) {
-    for (unsigned long long i = 0; i < v.size(); i++) {
-        cerr << v[i] << " ";
-    }
-    cerr << endl;
-}
-bool contains(vi v, int a) {
-    set<int> vv(all(v));
-    return vv.count(a);
-}
+int nxt() { int a; cin >> a; return a; }
 int main() {
+    // USACO 2020 January Contest, Bronze
+    // Problem 3. Race
+    // https://usaco.org/index.php?page=viewproblem2&cpid=989
     setIO("race", true);
 
-    unsigned long long distance, n;
-    cin >> distance >> n;
-    vector<unsigned long long> finish_speeds(n);
-    for (unsigned long long i = 0; i < n; i++) { cin >> finish_speeds[i]; }
-    string buff = "";
-    printv(finish_speeds);
-    for (auto finish_speed: finish_speeds) {
-        // cerr << "speed" << finish_speed << endl;
-        unsigned long long front = 1;
-        unsigned long long back = finish_speed;
-        unsigned long long fv = front; unsigned long long bv = back;
-        unsigned long long t = 1;
+    unsigned long long total_race_distance, num_test_cases;
+    cin >> total_race_distance >> num_test_cases;
+    vector<unsigned long long> target_speeds(num_test_cases);
+    for (unsigned long long i = 0; i < num_test_cases; i++) { cin >> target_speeds[i]; }
+    string output_buffer = "";
+    printv(target_speeds);
+    for (auto target_speed: target_speeds) {
+        unsigned long long forward_distance = 1;
+        unsigned long long backward_distance = target_speed;
+        unsigned long long forward_velocity = forward_distance;
+        unsigned long long backward_velocity = backward_distance;
+        unsigned long long elapsed_time = 1;
 
-        while (fv != finish_speed && !(front >= distance)) {
-            front += ++fv;
-            t++;
-            if (finish_speed == 5) {
-                cerr << fv << " " << front << " " << t << "|";
+        while (forward_velocity != target_speed && !(forward_distance >= total_race_distance)) {
+            forward_distance += ++forward_velocity;
+            elapsed_time++;
+            if (target_speed == 5) {
+                cerr << forward_velocity << " " << forward_distance << " " << elapsed_time << "|";
             }
         }
-        if (finish_speed == 5) {
+        if (target_speed == 5) {
             cerr << "---" << endl;
-            cerr << front + back << " " << t << endl;
+            cerr << forward_distance + backward_distance << " " << elapsed_time << endl;
         }
-        if (!(front >= distance)) {
-            t++;
-            while (!(front+back >= distance) && !(front+back+fv >= distance)) {
-                front += ++fv;
-                back += ++bv;
-                t += 2;
+        if (!(forward_distance >= total_race_distance)) {
+            elapsed_time++;
+            while (!(forward_distance+backward_distance >= total_race_distance) &&
+                   !(forward_distance+backward_distance+forward_velocity >= total_race_distance)) {
+                forward_distance += ++forward_velocity;
+                backward_distance += ++backward_velocity;
+                elapsed_time += 2;
             }
-            if (!(front + back >= distance)) t++;
+            if (!(forward_distance + backward_distance >= total_race_distance)) elapsed_time++;
         }
-        buff += to_string(t) + "\n";
+        output_buffer += to_string(elapsed_time) + "\n";
     }
-    cout << buff;
+    cout << output_buffer;
     return 0;
 }

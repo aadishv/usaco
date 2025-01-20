@@ -1,56 +1,45 @@
+// echo "clear && clang++ main.cpp -std=c++17 -Wall -Wextra -O2 -lm && time ./a.out < input.txt" > ~/.runner_settings
+// cp template.cpp main.cpp
 #include <bits/stdc++.h>
+
+#define vi vector<int>
+#define all(a) a.begin(), a.end()
+
 using namespace std;
 
-void setIO(string s) {
-	freopen((s + ".in").c_str(), "r", stdin);
-	freopen((s + ".out").c_str(), "w", stdout);
-}
-int nonspacechars(string s) {
-    int t = 0;
-    for (char c: s) {
-        if (c != ' ') {
-            t++;
-        }
+void setIO(string name = "", bool maxio = false) {
+    if (name.size() > 0){
+        freopen((name+".in").c_str(), "r", stdin);
+        freopen((name+".out").c_str(), "w", stdout);
     }
-    return t;
+    if (maxio) {
+        ios::sync_with_stdio(false);
+        cin.tie(nullptr);
+    }
 }
+int nxt() { int a; cin >> a; return a; }
 
-template <typename T>
-void printv(vector<T> v) {
-    for (const T &num : v) {
-        cout << num << " ";
-    }
-    cout << endl;
-}
-template <typename T>
-vector<T> removed(vector<T> v, T val) {
-    bool flag = false;
-    vector<T> result = {};
-    for (T i: v) {
-        if (i == val && !flag) {
-            flag = true;
-        } else {
-            result.push_back(i);
-        }
-    }
-    return result;
-}
 int main() {
-    // setIO("word");
-    vector<long long> ops = {0,0,0,0,0,0,0};
-    cin >> ops[0] >> ops[1] >> ops[2] >> ops[3] >> ops[4] >> ops[5] >> ops[6];
-    long long sumabc = *std::max_element(ops.begin(), ops.end());
-    ops = removed(ops, sumabc);
+    // USACO 2020 December Contest, Bronze
+    // Problem 1. Do You Know Your ABCs?
+    // https://usaco.org/index.php?page=viewproblem2&cpid=1059
+    setIO("", false);
 
-    long long a = *std::min_element(ops.begin(), ops.end());
-    ops = removed(ops, a);
-    long long b = *std::min_element(ops.begin(), ops.end());
-    ops = removed(ops, b);
-    for (long long cop : ops) {
-        if (a + b + cop == sumabc) {
-            cout << a << " " << b << " " << cop;
+    vector<long long> numbers = {0,0,0,0,0,0,0};
+    cin >> numbers[0]
+        >> numbers[1] >> numbers[2] >> numbers[3]
+        >> numbers[4] >> numbers[5] >> numbers[6];
+
+    long long target_sum = *std::max_element(numbers.begin(), numbers.end());
+    numbers.erase(find(all(numbers), target_sum));
+    long long smallest = *std::min_element(numbers.begin(), numbers.end());
+    numbers.erase(find(all(numbers), smallest));
+    long long second_smallest = *std::min_element(numbers.begin(), numbers.end());
+    numbers.erase(find(all(numbers), second_smallest));
+    for (long long remaining : numbers) {
+        if (smallest + second_smallest + remaining == target_sum) {
+            cout << smallest << " " << second_smallest << " " << remaining;
             return 0;
         }
     }
-    return 0;
 }

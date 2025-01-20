@@ -1,75 +1,93 @@
+// echo "clear && clang++ main.cpp -std=c++17 -Wall -Wextra -O2 -lm && time ./a.out < input.txt" > ~/.runner_settings
+// cp template.cpp main.cpp
 #include <bits/stdc++.h>
+
+#define vi vector<int>
+#define all(a) a.begin(), a.end()
+
 using namespace std;
 
-void setIO(string s) {
-    freopen((s + ".in").c_str(), "r", stdin);
-    freopen((s + ".out").c_str(), "w", stdout);
-}
-struct Cow {
-    int x, y, ind;
-    char dir;
-};
-struct Collision {
-    Cow ncow, ecow;
-    int cx, cy; // collision point
-    int ndist, edist; // dist ecow/ncow travel before collission
-};
-int main() {
-    int n;
-    cin >> n;
-    vector<Cow> cows = {};
-    vector<Collision> collisions = {};
-    vector<int> deaths(n, -1);
-    for (int i = 0; i < n; i++) {
-        char dir;
-        int x, y;
-        cin >> dir >> x >> y;
-        Cow cow { x, y, i, dir };
-        cows.push_back(cow);
+void setIO(string name = "", bool maxio = false) {
+    if (name.size() > 0){
+        freopen((name+".in").c_str(), "r", stdin);
+        freopen((name+".out").c_str(), "w", stdout);
     }
-    for (auto ncow: cows) {
-        if (ncow.dir == 'E') {
+    if (maxio) {
+        ios::sync_with_stdio(false);
+        cin.tie(nullptr);
+    }
+}
+int nxt() { int a; cin >> a; return a; }
+struct Pasture_Animal {
+    int position_x, position_y, id;
+    char direction;
+};
+
+struct Intersection {
+    Pasture_Animal northbound, eastbound;
+    int collision_x, collision_y;      // collision coordinates
+    int north_distance, east_distance; // distance traveled before intersection
+};
+
+int main() {
+    // USACO 2020 December Contest, Bronze
+    // Problem 3. Stuck in a Rut
+    // https://usaco.org/index.php?page=viewproblem2&cpid=1061
+    int num_cows;
+    cin >> num_cows;
+    vector<Pasture_Animal> animals = {};
+    vector<Intersection> intersections = {};
+    vector<int> stopping_times(num_cows, -1);
+
+    for (int i = 0; i < num_cows; i++) {
+        char direction;
+        int x, y;
+        cin >> direction >> x >> y;
+        Pasture_Animal animal { x, y, i, direction };
+        animals.push_back(animal);
+    }
+
+    for (auto northbound: animals) {
+        if (northbound.direction == 'E') {
             continue;
         }
-        for (auto ecow: cows) {
-            if (ecow.dir == 'N') {
+        for (auto eastbound: animals) {
+            if (eastbound.direction == 'N') {
                 continue;
             }
-            if (ncow.x > ecow.x && ecow.y > ncow.y) {
-                // there is a possibility of a collision
-                int cx = ncow.x;
-                int cy = ecow.y;
-                int ndist = abs(ncow.y - cy);
-                int edist = abs(ecow.x - cx);
-                collisions.push_back(Collision { ncow, ecow, cx, cy, ndist, edist });
+            if (northbound.position_x > eastbound.position_x && eastbound.position_y > northbound.position_y) {
+                // Calculate potential intersection
+                int collision_x = northbound.position_x;
+                int collision_y = eastbound.position_y;
+                int north_distance = abs(northbound.position_y - collision_y);
+                int east_distance = abs(eastbound.position_x - collision_x);
+                intersections.push_back(Intersection { northbound, eastbound, collision_x, collision_y, north_distance, east_distance });
             }
         }
     }
-    sort(collisions.begin(), collisions.end(), [](const Collision &a, const Collision &b) {
-        return min(a.ndist, a.edist) < min(b.ndist, b.edist);
+
+    sort(intersections.begin(), intersections.end(), [](const Intersection &a, const Intersection &b) {
+        return min(a.north_distance, a.east_distance) < min(b.north_distance, b.east_distance);
     });
-    for (auto collision: collisions) { // NOTE: This is a POSSIBLE COLLISION
-        bool egood = deaths[collision.ecow.ind]>collision.edist || deaths[collision.ecow.ind] == -1; // will be true for -1
-        bool ngood = deaths[collision.ncow.ind]>collision.ndist || deaths[collision.ncow.ind] == -1; // will be true for -1
 
-        if (egood && ngood) { // both are still alive
-            if (collision.edist < collision.ndist) { // ecow will reach collision point first and continue, n dies
-                deaths[collision.ncow.ind] = collision.ndist;
-            } else if (collision.ndist < collision.edist) { // and vice versa
-                deaths[collision.ecow.ind] = collision.edist;
+    for (auto intersection: intersections) {
+        bool east_alive = stopping_times[intersection.eastbound.id] > intersection.east_distance ||
+                         stopping_times[intersection.eastbound.id] == -1;
+        bool north_alive = stopping_times[intersection.northbound.id] > intersection.north_distance ||
+                          stopping_times[intersection.northbound.id] == -1;
+
+        if (east_alive && north_alive) {
+            if (intersection.east_distance < intersection.north_distance) {
+                stopping_times[intersection.northbound.id] = intersection.north_distance;
+            } else if (intersection.north_distance < intersection.east_distance) {
+                stopping_times[intersection.eastbound.id] = intersection.east_distance;
             }
         }
     }
-    for (int death: deaths) {
-        cout << ((death == -1) ? "Infinity" : to_string(death)) << endl;
-    }
 
-    /*
-    1. find all collisions
-    2. sort collisions by what time the cow stops
-    3. go through each collission, check if still possible based on death time,
-       and update death time for that cow
-    */
+    for (int stop_time: stopping_times) {
+        cout << ((stop_time == -1) ? "Infinity" : to_string(stop_time)) << endl;
+    }
 
     return 0;
 }

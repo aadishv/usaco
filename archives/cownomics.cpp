@@ -1,67 +1,89 @@
+// echo "clear && clang++ main.cpp -std=c++17 -Wall -Wextra -O2 -lm && time ./a.out < input.txt" > ~/.runner_settings
+// cp template.cpp main.cpp
 #include <bits/stdc++.h>
+
+#define vi vector<int>
+#define all(a) a.begin(), a.end()
+
 using namespace std;
 
-void setIO(string s) {
-    freopen((s + ".in").c_str(), "r", stdin);
-    freopen((s + ".out").c_str(), "w", stdout);
-}
-struct Cow {
-    int x, y, ind;
-    char dir;
-};
-struct Collision {
-    Cow ncow, ecow;
-    int cx, cy; // collision point
-    int ndist, edist; // dist ecow/ncow travel before collission
-};
-bool n_in_circular_range(int n, int range_start, int range_end) {
-    if (range_start <= range_end) {
-        return range_start < n && n < range_end;
-    } else { // OMG it's a circle
-        return n > range_start || n < range_end;
+void setIO(string name = "", bool maxio = false) {
+    if (name.size() > 0){
+        freopen((name+".in").c_str(), "r", stdin);
+        freopen((name+".out").c_str(), "w", stdout);
+    }
+    if (maxio) {
+        ios::sync_with_stdio(false);
+        cin.tie(nullptr);
     }
 }
+int nxt() { int a; cin >> a; return a; }
+
+struct Position {
+    int x, y, index;
+    char direction;
+};
+
+struct CollisionEvent {
+    Position northCow, eastCow;
+    int collisionX, collisionY;
+    int northDistance, eastDistance;  // Distance traveled before collision
+};
+
+bool isInCircularRange(int value, int rangeStart, int rangeEnd) {
+    if (rangeStart <= rangeEnd) {
+        return rangeStart < value && value < rangeEnd;
+    } else {
+        return value > rangeStart || value < rangeEnd;
+    }
+}
+
 int main() {
-    // setIO("cownomics");
-    int n, m;
-    cin >> n >> m;
+    // USACO 2017 US Open Contest, Silver
+    // Problem 2. Bovine Genomics
+    // https://usaco.org/index.php?page=viewproblem2&cpid=739
+    setIO("cownomics");
+    int numCows, numPositions;
+    cin >> numCows >> numPositions;
     cin.ignore(1);
-    vector<string> good;
-    vector<string> bad;
-    for (int i = 0; i < n; i++) {
-        string s;
-        getline(cin, s);
-        good.push_back(s);
+
+    vector<string> spottyCows;
+    vector<string> plainCows;
+
+    for (int i = 0; i < numCows; i++) {
+        string genome;
+        getline(cin, genome);
+        spottyCows.push_back(genome);
     }
-    for (int i = 0; i < n; i++) {
-        string s;
-        getline(cin, s);
-        bad.push_back(s);
+
+    for (int i = 0; i < numCows; i++) {
+        string genome;
+        getline(cin, genome);
+        plainCows.push_back(genome);
     }
-    int t = 0;
-    for (int a = 0; a < m; a++) {
-        // cout << "a" << a << endl;
-        for (int b = a+1; b < m; b++) {
-            // cout << "b" << b << endl;
-            for (int c = b+1; c < m; c++) {
-                // cout << "c" << c << endl;
-                set<vector<char>> contained = {};
-                for (string g: good) {
-                    contained.insert({g[a], g[b], g[c]});
+
+    int possiblePositions = 0;
+    for (int pos1 = 0; pos1 < numPositions; pos1++) {
+        for (int pos2 = pos1+1; pos2 < numPositions; pos2++) {
+            for (int pos3 = pos2+1; pos3 < numPositions; pos3++) {
+                set<vector<char>> spottyGenomes;
+                for (const string& genome : spottyCows) {
+                    spottyGenomes.insert({genome[pos1], genome[pos2], genome[pos3]});
                 }
-                bool good = true;
-                for (string bb: bad) {
-                    vector<char> thing = {bb[a], bb[b], bb[c]};
-                    if (contained.count(thing) > 0) {
-                        good = false;
+
+                bool isValid = true;
+                for (const string& genome : plainCows) {
+                    vector<char> genomeTriple = {genome[pos1], genome[pos2], genome[pos3]};
+                    if (spottyGenomes.count(genomeTriple) > 0) {
+                        isValid = false;
                         break;
                     }
                 }
-                t += good;
+                possiblePositions += isValid;
             }
         }
     }
-    cout << t << endl;
+    cout << possiblePositions << endl;
     /*
     1. find all collisions
     2. sort collisions by what time the cow stops
@@ -71,14 +93,3 @@ int main() {
 
     return 0;
 }
-/*
-Positions:    1 2 3 4 5 6 7 ... M
-
-Spotty Cow 1: A A T C C C A ... T
-Spotty Cow 2: G A T T G C A ... A
-Spotty Cow 3: G G T C G C A ... A
-
-Plain Cow 1:  A C T C C C A ... G
-Plain Cow 2:  A G T T G C A ... T
-Plain Cow 3:  A G T T C C A ... T
-*/

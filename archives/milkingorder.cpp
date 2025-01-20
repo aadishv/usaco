@@ -1,7 +1,10 @@
+// echo "clear && clang++ main.cpp -std=c++17 -Wall -Wextra -O2 -lm && time ./a.out < input.txt" > ~/.runner_settings
+// cp template.cpp main.cpp
 #include <bits/stdc++.h>
-#include <ostream>
+
 #define vi vector<int>
 #define all(a) a.begin(), a.end()
+
 using namespace std;
 
 void setIO(string name = "", bool maxio = false) {
@@ -14,64 +17,71 @@ void setIO(string name = "", bool maxio = false) {
         cin.tie(nullptr);
     }
 }
-int nxt() {
-    int a; cin >> a; return a;
-}
-template<typename T>
-void printv(vector<T> v) {
-    for (unsigned long i = 0; i < v.size(); i++) {
-        // cout << v[i] << " ";
-    }
-    // cout << endl;
-}
-bool contains(vi v, int a) {
-    set<int> vv(all(v));
-    return vv.count(a);
-}
-bool check_good_cows(vi cows, vi order) {
-    auto order_pointer = order.begin();
-    int local_free_spaces = 0;
-    auto last_order_pointer = order.begin();
-    for (auto c: cows) {
-        if (c == -1) local_free_spaces++;
-        if (contains(order, c)) {
-            while (*order_pointer != c && order_pointer != order.end())
-                order_pointer++;
-            if (order_pointer == order.end()) return false;
-            if (order_pointer - last_order_pointer > local_free_spaces)
+int nxt() { int a; cin >> a; return a; }
+bool isValidCowOrder(vi positionedCows, const vi& requiredOrder) {
+    auto currentOrderPos = requiredOrder.begin();
+    int availableSpaces = 0;
+    auto lastFoundOrderPos = requiredOrder.begin();
+
+    for (auto cowId : positionedCows) {
+        if (cowId == -1) {
+            availableSpaces++;
+        }
+
+        // Check if current cow is in required order
+        if (find(requiredOrder.begin(), requiredOrder.end(), cowId) != requiredOrder.end()) {
+            while (currentOrderPos != requiredOrder.end() && *currentOrderPos != cowId) {
+                currentOrderPos++;
+            }
+
+            if (currentOrderPos == requiredOrder.end()) {
                 return false;
-            local_free_spaces = 1;
-            last_order_pointer = order_pointer;
+            }
+
+            if (currentOrderPos - lastFoundOrderPos > availableSpaces) {
+                return false;
+            }
+
+            availableSpaces = 1;
+            lastFoundOrderPos = currentOrderPos;
         }
     }
     return true;
 }
-int main() {
-    setIO("milkorder");
-    int num_cows = nxt();
-    vi cows(num_cows, -1);
-    vi order(nxt());
-    int num_set = nxt();
 
-    for (int i = 0; i < order.size(); i++) { int c = nxt(); order[i] = c; }
+int main() {
+    // USACO 2018 US Open Contest, Bronze
+    // Problem 2. Milking Order
+    // https://usaco.org/index.php?page=viewproblem2&cpid=832
+    setIO("milkorder");
+    int totalCows = nxt();
+    vi cowPositions(totalCows, -1);
+    vi hierarchyOrder(nxt());
+    int fixedPositions = nxt();
+
+    // Read hierarchy order
+    for (int i = 0; i < hierarchyOrder.size(); i++) {
+        hierarchyOrder[i] = nxt();
+    }
     cin.ignore();
-    for (int i = 0; i < num_set; i++) {
-        int c = nxt();
-        if (c == 1) return 0;
-        cows[nxt()-1] = c;
+
+    // Read fixed positions
+    for (int i = 0; i < fixedPositions; i++) {
+        int cowId = nxt();
+        if (cowId == 1) return 0;
+        cowPositions[nxt()-1] = cowId;
         cin.ignore();
     }
 
-    for (int possible_position = 0; possible_position < cows.size(); possible_position++) {
-        if (cows[possible_position] == -1) {
-            vi newc = cows;
-            newc[possible_position] = 1;
-            if (check_good_cows(newc, order)) {
-                cout << possible_position + 1 << endl;
+    // Try each possible position for cow 1
+    for (int pos = 0; pos < cowPositions.size(); pos++) {
+        if (cowPositions[pos] == -1) {
+            vi testPositions = cowPositions;
+            testPositions[pos] = 1;
+            if (isValidCowOrder(testPositions, hierarchyOrder)) {
+                cout << pos + 1 << endl;
                 return 0;
             }
         }
     }
 }
-
-// 3 4 5 6 1 _
