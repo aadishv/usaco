@@ -1,13 +1,19 @@
 import random
-from uuid import uuid4
-import string
-random.seed(42)
-#
-repeating = "dfgjhdflkjgdfhkjgdf"
-s = ""
-for i in range(5*10**3):
-    if random.random() > 0.10:
-        s += repeating
-    s += ''.join([random.choice(string.ascii_lowercase) for j in range(1000)])
-print(s)
-print(repeating)
+random.seed(43)
+# N = 7500
+print(1)
+MULT = 632
+print(5*MULT, 1, 2)
+s = """GWGWW
+WGWWW
+WBWGW
+WWWWW
+WWGWW"""
+mys = s.split('\n')
+for i in range(MULT):
+    for l in mys:
+        for j in range(MULT):
+            print(l, end="")
+        print()
+
+# we expect the answer to be 4 * MULT^2

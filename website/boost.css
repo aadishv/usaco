@@ -1,0 +1,26 @@
+* {
+    font-variant: normal !important;
+    font-family: "Helvetica Neue" !important;
+}
+pre {
+    background-color: black !important;
+    font-family: monospace !important;
+    color: white;
+    padding: 10px;
+    border-radius: 10px;
+    width: 90% !important;
+    text-overflow: wrap;
+}
+
+div,
+a {
+    border-radius: 10px;
+}
+
+input,
+select {
+    font-family: monospace !important;
+    /* Try setting a border (might not work consistently) */
+    border: none;
+    border-radius: 3px;
+}
