@@ -1,6 +1,5 @@
 #include <bits/stdc++.h>
-#include <cstdint>
-#define vi vector<int>
+#define vi vector<ll>
 #define all(it) it.begin(), it.end()
 #define ball(it) it.begin(), it.begin()
 #define ll long long
@@ -26,24 +25,23 @@ namespace utils {
 using namespace utils;
 
 int main() {
-    #ifndef AADISHV
-    string name = "maxcross";
-    if (name.size() > 0) {
-        freopen((name+".in").c_str(), "r", stdin);
-        freopen((name+".out").c_str(), "w", stdout);
+    // CSES Problem Set
+    // Maximum Subarray Sum
+    // https://cses.fi/problemset/task/1643
+    ll length = gnxt<ll>();
+    ll maxSum = 0;
+    ll minPrefix = 0;
+    ll currentSum = 0;
+    for (ll i = 0; i < length; i++) {
+        ll newSum = currentSum + gnxt<ll>();
+        if (i == 0) {
+            maxSum = newSum;
+        }
+        ll possibleMax = newSum - minPrefix;
+        maxSum = max(maxSum, possibleMax);
+        currentSum = newSum;
+        minPrefix = min(newSum, minPrefix);
     }
-    #endif
-    int length = nxt(), target = nxt(), lines = nxt();
-    set<int> broken = {};
-    for (int i = 0; i < lines; i++) broken.insert(nxt());
-    vi prefix(length+1, 0);
-    for (int i = 1; i <= length; i++) {
-        prefix[i] = prefix[i-1]+broken.count(i);
-    }
-    int best = INT32_MAX;
-    for (int i = 0; i <= length - target; i++) {
-        int n = prefix[i+target] - prefix[i];
-        best = min(best, n);
-    }
-    cout << best << endl;
+    cout << maxSum << endl;
+    return 0;
 }
