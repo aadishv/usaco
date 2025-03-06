@@ -5,6 +5,9 @@
 #define ll long long
 #define cast(a, b) static_cast<b>(a)
 #define vec vector
+#define RANGE(a, b) for (int i = a; i < b; i++)
+#define RANGE_I(a, b, c) for (int c = a; c < b; c++)
+#define let auto
 using namespace std;
 
 namespace utils {
@@ -20,11 +23,51 @@ template <typename T> T gnxt() {
 }
 template <typename T>
 void dbgv(vector<T> vs, string id = "", bool use_cout = false) {
-
     if (id != "")
         cerr << id << ":\t";
-    for (auto v : vs)
-        cerr << v << " ";
+
+    // Find length of longest number when stringified
+    size_t max_len = 0;
+    for (auto v : vs) {
+        ostringstream ss;
+        ss << v;
+        max_len = max(max_len, ss.str().length());
+    }
+
+    // Output with padding
+    for (auto v : vs) {
+        ostringstream ss;
+        ss << v;
+        string str = ss.str();
+        cerr << str << string(1 + max_len - str.length(), ' ');
+    }
+    cerr << endl;
+}
+template <typename T>
+void dbgv2(vector<vector<T>> vs, string id = "", bool use_cout = false) {
+    if (id != "")
+        cerr << id << ":\t";
+
+    // Find length of longest number when stringified across ALL elements
+    size_t max_len = 0;
+    for (auto row : vs) {
+        for (auto v : row) {
+            ostringstream ss;
+            ss << v;
+            max_len = max(max_len, ss.str().length());
+        }
+    }
+
+    // Output each row with consistent padding
+    for (auto row : vs) {
+        for (auto v : row) {
+            ostringstream ss;
+            ss << v;
+            string str = ss.str();
+            cerr << str << string(1 + max_len - str.length(), ' ');
+        }
+        cerr << endl;
+    }
     cerr << endl;
 }
 void dbg() { cerr << endl; } // base case
@@ -32,11 +75,11 @@ template <typename T, typename... Args> void dbg(T a, Args... args) {
     cerr << a << " ";
     dbg(args...);
 }
-template <typename T> void sum(vector<T> v) {
+template <typename T> int sum(vector<T> v) {
     T ans = 0;
     for (auto x : v)
         ans += x;
-    cout << ans << endl;
+    return ans;
 }
 template <typename T> void print(vector<T> v) {
     for (auto x : v)
@@ -48,7 +91,7 @@ using namespace utils;
 
 int main() {
 #ifndef AADISHV
-    string name = "";
+    string name = "paintbarn";
     if (name.size() > 0) {
         freopen((name + ".in").c_str(), "r", stdin);
         freopen((name + ".out").c_str(), "w", stdout);
