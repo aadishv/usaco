@@ -90,11 +90,47 @@ namespace utils {
 using namespace utils;
 
 int main() {
+    // USACO 2014 March Contest, Silver
+    // Problem 2. The Lazy Cow
+    // https://usaco.org/index.php?page=viewproblem2&cpid=416
 #ifndef AADISHV
-    string name = "paintbarn";
+    string name = "lazy";
     if (name.size() > 0) {
         freopen((name + ".in").c_str(), "r", stdin);
         freopen((name + ".out").c_str(), "w", stdout);
     }
 #endif
+    int n = nxt(), k = nxt();
+    vec<vec<int>> grid_og(n, vi(n, 0)); // [y][x] indexes!!!
+    for (auto& row: grid_og) {
+        for (auto& v: row) v = nxt();
+    }
+    vec<vec<int>> grid(n*2-1, vi(n*2-1, 0)); // [y][x] indexes!!!
+    for (int y = 0; y < n; y++) {
+        for (int x = 0; x < n; x++) {
+            grid[x-y+(n-1)][x+y] = grid_og[y][x];
+        }
+    }
+    vec<vec<int>> prefix(n*2, vi(n*2, 0)); // [y][x] indexes!!!
+    for (int y = 0; y < n*2-1; y++) {
+        for (int x = 0; x < n*2-1; x++) {
+            prefix[y+1][x+1] = prefix[y][x+1] + prefix[y+1][x] - prefix[y][x]
+                + grid[y][x];
+        }
+    }
+    int best = 0;
+    for (int y = 0; y < n; y++) {
+        for (int x = 0; x < n; x++) {
+            int tx = x+y;
+            int ty = x-y+(n-1);
+            int x1 = max(0, tx - k);
+            int y1 = max(0, ty - k);
+            int x2 = min(n*2-2, tx + k);
+            int y2 = min(n*2-2, ty + k);
+            int sum = prefix[y2+1][x2+1] + prefix[y1][x1]
+                - prefix[y2+1][x1] - prefix[y1][x2+1];
+            best = max(sum, best);
+        }
+    }
+    cout << best << endl;
 }
