@@ -1,1 +1,1 @@
-cp template.cpp main.cpp
+cp template.cpp user/main.cpp

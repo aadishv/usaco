@@ -89,12 +89,33 @@ namespace utils {
 } // namespace utils
 using namespace utils;
 
-int main() {
-#ifndef AADISHV
-    string name = "paintbarn";
-    if (name.size() > 0) {
-        freopen((name + ".in").c_str(), "r", stdin);
-        freopen((name + ".out").c_str(), "w", stdout);
+void solve(string str, int strl) {
+    int m = nxt();
+    char c = gnxt<char>();
+    int n = 0; // the number of non-o characters
+    int r = -1;
+    int best = 0;
+    for (int l = 0; l < strl; [&]() {
+        n -= (str[l++] != c);
+    }()) {
+        while (n <= m && r+1 < strl) {
+            n += str[++r] != c;
+            if (n > m) {
+                n--;
+                r--;
+                break;
+            }
+        }
+        best = max(best, r - l + 1);
     }
-#endif
+    cout << best << endl;
+}
+
+int main() {
+    int strl = nxt();
+    string str = gnxt<string>();
+    int nq = nxt();
+    for (int i = 0; i < nq; i++) {
+        solve(str, strl);
+    }
 }

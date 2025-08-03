@@ -116,7 +116,7 @@ def print_panels(input_content, output_content, expected_content):
 def main():
     """Main function to execute and monitor the command."""
     # Hardcoded values from runner.sh
-    input_file = "input.txt"
+    input_file = "user/input.txt"
     command = ["./a.out"]
 
     # Check if input file exists
@@ -202,9 +202,9 @@ def main():
     except Exception:
         pass
 
-    if os.path.exists("output.txt"):
+    if os.path.exists("user/output.txt"):
         try:
-            with open("output.txt", 'r') as f:
+            with open("user/output.txt", 'r') as f:
                 expected_output = f.read()
         except Exception:
             pass
