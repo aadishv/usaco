@@ -1,5 +1,25 @@
+// ==UserScript==
+// @name         USACO better
+// @namespace    *://usaco.org/*
+// @version      1.0
+// @description  Tweaks page
+// @match        *://usaco.org/*
+// @grant        none
+// ==/UserScript==
 function check() {
-  console.log("ggg");
+  document.getElementsByTagName("img")[0].outerHTML =
+      `<img height="50px" border="0px"></div>`;
+
+  Array.from(document.getElementsByTagName("pre")).forEach((i) => {
+    i.addEventListener("click", (e) => {
+      navigator.clipboard.writeText(e.target.innerText);
+      e.target.style.opacity = "70%";
+      setTimeout(() => {
+          e.target.style.opacity = "100%";
+      }, 100)
+    });
+  });
+
   var elements = document.getElementsByTagName("h2");
   const text = `//${elements[0].innerHTML}\n//${elements[1].innerHTML}\n// ${window.location.href}`
   elements[0].addEventListener("click", () => {
@@ -20,13 +40,11 @@ function check() {
   var titles = document.getElementsByTagName("title");
   titles[0].innerHTML = `${importantStuff}`;
   var thing = document.getElementsByTagName("select");
+  if (thing.length < 2) {
+    return;
+  }
   thing[1].value = "7";
 }
-document.addEventListener('DOMContentLoaded', () => {
-  document.getElementsByTagName("img")[0].outerHTML =
-      `<img height="50px" border="0px"></div>`;;
-  console.log(window.location);
-  if (window.location.href.includes("viewproblem")) {
-    check();
-  }
-})
+if (window.location.href.includes("viewproblem")) {
+  check();
+}

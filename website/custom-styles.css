@@ -11,7 +11,12 @@ pre {
     width: 90% !important;
     text-overflow: wrap;
 }
-
+pre.in {
+  background-color: rgb(1.8698, 95.726, 222.9) !important;
+}
+pre.out {
+background-color: rgb(215.52, 0, 34.023) !important;
+}
 div,
 a {
     border-radius: 10px;
