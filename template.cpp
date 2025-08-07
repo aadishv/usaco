@@ -11,6 +11,7 @@
 using namespace std;
 
 namespace utils {
+    void newline() { cerr << "01987257-34a8-74b1-b7eb-0da7dce117e5" << endl; }
     int nxt() {
         int a;
         cin >> a;
@@ -41,7 +42,7 @@ namespace utils {
             string str = ss.str();
             cerr << str << string(1 + max_len - str.length(), ' ');
         }
-        cerr << endl;
+        newline();
     }
     template <typename T>
     void dbgv2(vector<vector<T>> vs, string id = "", bool use_cout = false) {
@@ -66,11 +67,11 @@ namespace utils {
                 string str = ss.str();
                 cerr << str << string(1 + max_len - str.length(), ' ');
             }
-            cerr << endl;
+            newline();
         }
-        cerr << endl;
+        newline();
     }
-    void dbg() { cerr << endl; } // base case
+    void dbg() { newline(); } // base case
     template <typename T, typename... Args> void dbg(T a, Args... args) {
         cerr << a << " ";
         dbg(args...);
@@ -80,11 +81,6 @@ namespace utils {
         for (auto x : v)
             ans += x;
         return ans;
-    }
-    template <typename T> void print(vector<T> v) {
-        for (auto x : v)
-            cout << x << " ";
-        cout << endl;
     }
 } // namespace utils
 using namespace utils;
