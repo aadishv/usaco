@@ -85,12 +85,43 @@ namespace utils {
 } // namespace utils
 using namespace utils;
 
-int main() {
-#ifndef AADISHV
-    string name = "paintbarn";
-    if (name.size() > 0) {
-        freopen((name + ".in").c_str(), "r", stdin);
-        freopen((name + ".out").c_str(), "w", stdout);
+int bsearch(int l, int r, function<bool(int)> f) {
+    // f(i) exists for i in [l, r]
+    l--;
+    // f(l) == true is an invariant
+    for (int spacing = r - l; spacing > 0; spacing /= 2) {
+        while (l + spacing <= r && f(l + spacing)) l += spacing;
     }
-#endif
+    return l;
+}
+
+int main() {
+    // USACO 2016 January Contest, Silver
+    // Problem 1. Angry Cows
+    // https://usaco.org/index.php?page=viewproblem2&cpid=594
+    #ifndef AADISHV
+        string name = "angry";
+        if (name.size() > 0) {
+            freopen((name + ".in").c_str(), "r", stdin);
+            freopen((name + ".out").c_str(), "w", stdout);
+        }
+    #endif
+    int n = nxt(), k = nxt();
+    vi cows(n);
+    for (auto& c: cows) c = nxt();
+    sort(all(cows));
+    auto good = [=](int l) {
+        size_t left = 0;
+        for (int c = 0; c < k; c++) {
+            auto o = left;
+            while (left < cows.size() && cows[o] + 2*l + 1 > cows[left]) left++;
+            if (left == cows.size()) {
+                return true;
+            }
+        }
+        return false;
+    };
+    cout << bsearch(0, cows.back() - cows.front(), [=](int p) {
+        return !good(p);
+    })+1 << endl;
 }
