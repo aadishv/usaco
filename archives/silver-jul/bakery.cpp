@@ -175,8 +175,8 @@ struct Friend {
         } else { // b - a < 0
             return Bound::from_lower(static_cast<long double>(determinant)/static_cast<long double>(b - a));
         }
-        // a + (ta - x) + b * (tb - y) <= c
-        // a + (ta - x) + b * (tb - S + x) <= c
+        // a * (ta - x) + b * (tb - y) <= c
+        // a * (ta - x) + b * (tb - S + x) <= c
         // a + ta - a * x + b * tb - b * S + b * x <= c
         // (b - a) * x <= c - a * ta - b * tb + b * S
     }

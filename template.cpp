@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <bits/stdc++.h>
 #define vi vector<int>
 #define all(it) it.begin(), it.end()
@@ -11,7 +12,6 @@
 using namespace std;
 
 namespace utils {
-    void newline() { cerr << "01987257-34a8-74b1-b7eb-0da7dce117e5" << endl; }
     int nxt() {
         int a;
         cin >> a;
@@ -27,7 +27,6 @@ namespace utils {
         if (id != "")
             cerr << id << ":\t";
 
-        // Find length of longest number when stringified
         size_t max_len = 0;
         for (auto v : vs) {
             ostringstream ss;
@@ -35,21 +34,40 @@ namespace utils {
             max_len = max(max_len, ss.str().length());
         }
 
-        // Output with padding
         for (auto v : vs) {
             ostringstream ss;
             ss << v;
             string str = ss.str();
             cerr << str << string(1 + max_len - str.length(), ' ');
         }
-        newline();
+        cerr << endl;
+    }
+    template <typename InputIt>
+    void dbgit(InputIt first, InputIt last, const std::string& id = "", bool use_cout = false) {
+        std::ostream& out = use_cout ? std::cout : std::cerr;
+        if (!id.empty()) out << id << ":\t";
+
+        // Buffer stringified values (safe for single-pass iterators).
+        std::vector<std::string> strs;
+        size_t max_len = 0;
+        for (auto it = first; it != last; ++it) {
+            std::ostringstream ss;
+            ss << *it;
+            strs.push_back(ss.str());
+            max_len = std::max(max_len, strs.back().length());
+        }
+
+        // Output with padding similar to your original function.
+        for (const auto& str : strs) {
+            out << str << std::string(1 + (max_len - str.length()), ' ');
+        }
+        out << '\n';
     }
     template <typename T>
     void dbgv2(vector<vector<T>> vs, string id = "", bool use_cout = false) {
         if (id != "")
             cerr << id << ":\t";
 
-        // Find length of longest number when stringified across ALL elements
         size_t max_len = 0;
         for (auto row : vs) {
             for (auto v : row) {
@@ -59,7 +77,6 @@ namespace utils {
             }
         }
 
-        // Output each row with consistent padding
         for (auto row : vs) {
             for (auto v : row) {
                 ostringstream ss;
@@ -67,11 +84,11 @@ namespace utils {
                 string str = ss.str();
                 cerr << str << string(1 + max_len - str.length(), ' ');
             }
-            newline();
+            cerr << endl;
         }
-        newline();
+        cerr << endl;
     }
-    void dbg() { newline(); } // base case
+    void dbg() { cerr << endl; } // base case
     template <typename T, typename... Args> void dbg(T a, Args... args) {
         cerr << a << " ";
         dbg(args...);
