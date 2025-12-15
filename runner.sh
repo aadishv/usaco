@@ -1,5 +1,8 @@
+# use -O2 to mimic USACO conditions
 clang++ user/main.cpp -DAADISHV -std=c++17 \
-    -Wall -Wextra -O2 -lm -Wno-unused-parameter \
-&& echo test && uv run tester.py
+    -Wall -Wextra -O0 -lm -pedantic \
+    && echo "starting..." \
+    && time ./a.out < user/input.txt
+# echo test && uv run tester.py
 # with debug symbols:
 # clear && clang++ main.cpp -DAADISHV -std=c++17 -Wall -Wextra -g -O0 -lm && time ./a.out < input.txt
